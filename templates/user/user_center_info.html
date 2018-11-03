@@ -1,0 +1,35 @@
+{% extends 'base_user_center.html' %}
+{% load static %}
+{% block page_title %}用户中心{% endblock page_title %}
+{% block page_right  %}
+		<div class="right_content clearfix">
+				<div class="info_con clearfix">
+				<h3 class="common_title2">基本信息</h3>
+						<ul class="user_info_list">
+							<li><span>用户名：</span>{{ user.username}}</li>
+							{% if address %}
+							<li><span>联系方式：</span>{{ address.phone }}</li>
+							<li><span>联系地址：</span>{{ address.addr }}</li>
+							{% else %}
+							<li>没有地址信息</li>
+							{% endif %}			
+						</ul>
+				</div>
+				
+				<h3 class="common_title2">最近浏览</h3>
+				<div class="has_view_list">
+					<ul class="goods_type_list clearfix">
+				{% for goods in goods_list %}
+				<li>
+					<a href="detail.html"><img src="{{ goods.image.url}}"></a>
+					<h4><a href="detail.html">{{ goods.name}}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ goods.price }}</span>
+						<span class="unit">{{ goods.pirce }}/{{ goods.uinte }}</span>
+						<a href="#" class="add_goods" title="加入购物车"></a>
+					</div>
+				</li>
+				{% empty %}
+				<h4 align="center">没有任何浏览记录！</h4>
+				{% endfor %}
+{% endblock page_right %}

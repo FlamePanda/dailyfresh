@@ -7,8 +7,10 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer ,BadSigna
 from django.conf import settings
 from django.http import HttpResponse
 from celery_tasks.tasks import send_register_active_email
-from django.contrib.auth import authenticate,login
-
+from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django_redis import get_redis_connection
+from goods.models import GoodsSKU
 
 # Create your views here.
 
@@ -115,8 +117,9 @@ class LoginView(View):
 				# 用户已激活
 				# 记住用户ID
 				login(request,user)
+				# 判断用户是否要进入next所对应的URL中。
+				response = redirect(request.GET.get('next',reverse('goods:index')))
 				# 查看用户是否勾选记住用户名
-				response = redirect(reverse('goods:index'))
 				if remember == 'on':
 					# 记住用户名
 					response.set_cookie('user_name',user_name,max_age=14*24*3600)	
@@ -132,3 +135,89 @@ class LoginView(View):
 			# 用户不存在
 			return render(request,'user/login.html',{'errmsg':'用户名或密码错误！'})
 
+# /user/logout
+class LogoutView(View):
+	'''用户登出视图类'''
+	
+	def get(self,request):
+		# 清除用户数据
+		logout(request)
+		# 重定向至首页
+		return redirect(reverse('goods:index'))
+
+
+# /user
+class CenterView(LoginRequiredMixin,View):
+	'''用户中心视图类'''
+	
+	def get(self,request):
+		'''返回用户中心视图'''
+		# 业务处理，获取用户的地址和用户信息
+		address = Address.objects.get_default_address(request.user)
+		# 业务处理，获取用户的最近浏览
+		# 得到Redis数据库的连接
+		con = get_redis_connection('default')
+		# 得到Redis数据库的key
+		history_key = 'history_%d'%(request.user.id)
+		# 得到goods的skus_id
+		skus_id = con.lrange(history_key,0,4)
+		# 依照顺序得到对应的goods信息
+		skus = GoodsSKU.objects.filter(id__in=skus_id)
+		goods_list = []
+		for sku_id in skus_id:
+			for sku in skus:
+				if sku_id == sku.id:
+					goods_list.append(sku)
+					break
+		# 上下文
+		context = {'page':'info','address':address,'goods_list':goods_list}
+		# 返回
+		return render(request,'user/user_center_info.html',context)
+
+
+# /user/order
+class OrderView(LoginRequiredMixin,View):
+	'''用户订单视图类'''
+	
+	def get(self,request):
+		return render(request,'user/user_center_order.html',{'page':'order'})
+
+	def post(self,request):
+		'''处理用户订单请求'''
+		pass
+
+# /user/address
+class AddressView(LoginRequiredMixin,View):
+	'''用户地址视图类'''
+	
+	def get(self,request):
+		# 业务处理： 获取用户的默认地址
+		address = Address.objects.get_default_address(request.user)
+		# 返回页面
+		return render(request,'user/user_center_site.html',{'page':'address','address':address})
+	
+	def post(self,request):
+		'''处理用户地址请求'''
+		# 接收用户提交的数据
+		receiver = request.POST.get('receiver')
+		detail_address = request.POST.get('detail_address')
+		postcode = request.POST.get('postcode')
+		phone = request.POST.get('phone')
+		# 校验数据合法性
+		if not all([receiver,detail_address,phone]):
+			return render(request,'user/user_center_site.html',{'errmsg':'内容不允许为空！'})
+		if not match(r'^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$',phone):
+			return render(request,'user/user_center_site.html',{'errmsg':'手机号错误！'})
+		# 业务处理，添加地址进数据库
+		# 查看用户地址是否含有默认地址
+		user = request.user
+		address = Address.bjects.get_default_address(user)
+		if address:
+			is_default = False
+		else:
+			is_default = True
+		print('address:',address)
+		print('is_default:',is_default)
+		Address.objects.create(user=user,receiver=receiver,addr=detail_address,zip_code=postcode,phone=phone,is_default=is_default)
+		# 刷新页面
+		return redirect(reverse('user:address'))

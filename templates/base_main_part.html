@@ -1,0 +1,36 @@
+{# 用户登录网站后，显示的主体部分  #}
+{# 排除register和login两个页面  #}
+{% extends 'base.html'  %}
+{% load static  %}
+{% block bodytop %}
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div class="fr">
+				{%  if user.is_authenticated %}
+				<div class="login_btn fl">
+					欢迎您：<em>{{ user.username }}</em>
+					<span>|</span>
+					<a href="{% url 'user:logout' %}">退出</a>
+				</div>
+				{% else %}
+				<div class="login_btn fl">
+					<a href="{% url 'user:login' %}">登录</a>
+					<span>|</span>
+					<a href="{% url 'user:register' %}">注册</a>
+				</div>
+				{% endif %}
+				<div class="user_link fl">
+					<span>|</span>
+					<a href="{% url 'user:center' %}">用户中心</a>
+					<span>|</span>
+					<a href="cart.html">我的购物车</a>
+					<span>|</span>
+					<a href="{% url 'user:order' %}">我的订单</a>
+				</div>
+			</div>
+		</div>		
+	</div>
+{% endblock bodytop %}
+
+
