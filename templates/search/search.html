@@ -1,0 +1,53 @@
+{% extends 'base_main_part.html' %}
+{% load static %}
+{% block title %}天天生鲜-搜索商品列表{% endblock title %}
+{% block search %}
+	<div class="search_bar clearfix">
+		<a href="{% url 'goods:index' %}" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
+		<form method="get" action="/search">
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+			<input type="submit" class="input_btn fr" name="" value="搜索">
+		</div>
+		</form>
+	</div>
+{% endblock search %}
+{% block body %}
+	<div class="breadcrumb">
+		<a href="#">{{ query }}</a>
+		<span>></span>
+		<a href="#">搜索结果如下：</a>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="r_wrap fr clearfix">
+			<ul class="goods_type_list clearfix">
+				{% for item in page.object_list %}
+				<li>
+					<a href="{% url 'goods:detail' item.object.id %}"><img src="{{ item.object.image.url}}"></a>
+					<h4><a href="{% url 'goods:detail' item.object.id %}">{{ item.object.name }}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{ item.object.price }}</span>
+						<span class="unit">{{ item.object.price }}/{{ item.object.unite }}</span>
+						<a href="#" class="add_goods" title="加入购物车"></a>
+					</div>
+				</li>
+				{% empty %}  
+           			 <p align="center" >没有找到您要搜索的东西！</p> 
+				{% endfor %}
+			</ul>
+
+			<div class="pagenation">
+				{% if page.has_previous %}
+				<a href="?q={{ query }}&page={{ page.previous_page_number }}"><上一页</a>
+				{% endif %}
+				{% for index in paginator.page_range %}
+				<a href="?q={{ query }}&page={{ index  }}" {% if index == page.number %} class="active" {% endif %}>{{ index }}</a>
+				{% endfor %}
+				{% if page.has_next %}
+				<a href="?q={{ query }}&page={{ page.next_page_number }}"><下一页</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{% endblock body %}

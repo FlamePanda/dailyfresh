@@ -159,16 +159,18 @@ class CenterView(LoginRequiredMixin,View):
 		con = get_redis_connection('default')
 		# 得到Redis数据库的key
 		history_key = 'history_%d'%(request.user.id)
-		# 得到goods的skus_id
-		skus_id = con.lrange(history_key,0,4)
-		# 依照顺序得到对应的goods信息
-		skus = GoodsSKU.objects.filter(id__in=skus_id)
+		# 如果存在对应的键
 		goods_list = []
-		for sku_id in skus_id:
-			for sku in skus:
-				if sku_id == sku.id:
-					goods_list.append(sku)
-					break
+		if con.exists(history_key):
+			# 得到goods的skus_id
+			skus_id = con.lrange(history_key,0,4)
+			skus_id = [int(sku_id.decode()) for sku_id in skus_id]
+			# 依照顺序得到对应的goods信息
+			skus = GoodsSKU.objects.filter(id__in=skus_id)
+			for sku_id in skus_id:
+				for sku in skus:
+					if sku_id == sku.id:
+						goods_list.append(sku)
 		# 上下文
 		context = {'page':'info','address':address,'goods_list':goods_list}
 		# 返回

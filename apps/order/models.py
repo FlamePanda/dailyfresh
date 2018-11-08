@@ -22,7 +22,7 @@ class OrderInfo(BaseModel):
 )
 
 	order_id = models.CharField(max_length=128,primary_key=True,verbose_name='订单编号')
-	uer = models.ForeignKey('user.User',verbose_name='用户',on_delete=models.CASCADE)
+	user = models.ForeignKey('user.User',verbose_name='用户',on_delete=models.CASCADE)
 	addr = models.ForeignKey('user.Address',verbose_name='地址',on_delete=models.CASCADE)
 	pay_method = models.SmallIntegerField(default=3,choices=pay_type_choices,verbose_name='支付方式')
 	total_count = models.IntegerField(default=1,verbose_name='商品数量')
@@ -43,7 +43,7 @@ class OrderGoods(BaseModel):
 	sku = models.ForeignKey('goods.GoodsSKU',verbose_name='商品SKU',on_delete=models.CASCADE)
 	count = models.IntegerField(default=1,verbose_name='商品数量')
 	price = models.DecimalField(max_digits=10,decimal_places=2,verbose_name='商品价格')
-	comment = models.CharField(max_length=256,verbose_name='商品评论')
+	comment = models.CharField(max_length=256,default='',verbose_name='商品评论')
 
 	class Meta:
 		db_table = 'df_order_goods'

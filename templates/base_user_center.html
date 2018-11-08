@@ -5,10 +5,12 @@
 	<div class="search_bar clearfix">
 		<a href="{% url 'goods:index'  %}" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;{% block page_title  %}用户中心{% endblock page_title  %}</div>
-		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
-		</div>		
+		<form method="get" action="/search" >
+			<div class="search_con fr">
+				<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+				<input type="submit" class="input_btn fr" name="" value="搜索">
+			</div>	
+		</form>	
 	</div>
 {% endblock search  %}
 {% block body  %}

@@ -1,0 +1,4 @@
+# 设置要建立索引的字段名
+{{ object.name }} # 商品的名字
+{{ object.desc }} # 商品的简介
+{{ object.goods.detail }} # 商品的细节

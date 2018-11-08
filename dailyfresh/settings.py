@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	'haystack',# 注册全文检索的框架
 	'tinymce', # 注册富文本编辑器
 	'user',# 注册用户模块
 	'goods',# 注册货物模块
@@ -168,3 +169,21 @@ SESSION_CACHE_ALIAS = "default"
 
 # 配置login_url
 LOGIN_URL = '/user/login'
+
+# 配置FDFS系统的参数
+FDFS_CLIENT_CONF='./utils/fdfs_client.conf'
+BASE_URL='http://192.168.232.135:8888/'
+DEFAULT_FILE_STORAGE='utils.fdfs_storage.MyStorage'
+
+# 配置全文检索框架
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_ch_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}
+# 设置数据库内容和haystack索引同步
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
+# 设置搜索结果显示的个数
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 4
+

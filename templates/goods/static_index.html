@@ -1,4 +1,4 @@
-{% extends 'base_main_part.html' %}
+{% extends 'static_base.html' %}
 {% load static %}
 {% block title %}天天生鲜-首页{% endblock title %}
 {% block headfiles %}
@@ -9,12 +9,10 @@
 {% block search %}
 	<div class="search_bar clearfix">
 		<a href="{% url 'goods:index' %}" class="logo fl"><img src="{% static 'images/logo.png' %}"></a>
-		<form method="get" action="/search" >
-			<div class="search_con fl">
-				<input type="text" class="input_text fl" name="q" placeholder="搜索商品">
-				<input type="submit" class="input_btn fr" name="" value="搜索">
-			</div>
-		</form>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
 		<div class="guest_cart fr">
 			<a href="#" class="cart_name fl">我的购物车</a>
 			<div class="goods_count fl" id="show_count">{{ cart_count }}</div>
@@ -38,13 +36,13 @@
 	<div class="center_con clearfix">
 		<ul class="subnav fl">
 			{% for goods_type in goods_types %}
-			<li><a href="{% url 'goods:list' goods_type.id 1 %}" class="{{ goods_type.logo }}">{{ goods_type.name }}</a></li>
+			<li><a href="#{{ goods_type.logo }}" class="{{ goods_type.logo }}">{{ goods_type.name }}</a></li>
 			{% endfor %}
 		</ul>
 		<div class="slide fl">
 			<ul class="slide_pics">
 				{% for banner in  index_goods_banners %}
-				<li><a href="{% url 'goods:detail' banner.sku.id %}"><img src="{{ banner.image.url }}" alt="幻灯片"></a></li>
+				<li><img src="{{ banner.image.url }}" alt="幻灯片"></li>
 				{% endfor%}
 			</ul>
 			<div class="prev"></div>
@@ -64,10 +62,10 @@
 			<div class="subtitle fl">
 				<span>|</span>
 				{% for text_goods in goods_type.text_goods %}		
-				<a href="{% url 'goods:detail' text_goods.sku.id %}">{{ text_goods.sku.name }}</a>
+				<a href="#">{{ text_goods.sku.name }}</a>
 				{% endfor %}
 			</div>
-			<a href="{% url 'goods:list' goods_type.id 1 %}" class="goods_more fr" id="fruit_more">查看更多 ></a>
+			<a href="#" class="goods_more fr" id="fruit_more">查看更多 ></a>
 		</div>
 
 		<div class="goods_con clearfix">
@@ -75,8 +73,8 @@
 			<ul class="goods_list fl">
 				{% for graph_goods in goods_type.graph_goods %}
 				<li>
-					<h4><a href="{% url 'goods:detail' graph_goods.sku.id %}">{{  graph_goods.sku }}</a></h4>
-					<a href="{% url 'goods:detail' graph_goods.sku.id %}"><img src="{{ graph_goods.sku.image.url}}"></a>
+					<h4><a href="#">{{  graph_goods.sku }}</a></h4>
+					<a href="#"><img src="{{ graph_goods.sku.image.url}}"></a>
 					<div class="prize"> ￥ {{ graph_goods.sku.price }}</div>
 				</li>
 				{% endfor %}
@@ -85,4 +83,23 @@
 	</div>
 {% endfor %}
 {% endblock body %}
+{% block bottomscripts %}
+	<script type="text/javascript" src="{% static 'js/slideshow.js' %}"></script>
+	<script type="text/javascript">
+		BCSlideshow('focuspic');
+		var oFruit = document.getElementById('fruit_more');
+		var oShownum = document.getElementById('show_count');
+
+		var hasorder = localStorage.getItem('order_finish');
+
+		if(hasorder)
+		{
+			oShownum.innerHTML = '2';
+		}
+
+		oFruit.onclick = function(){
+			window.location.href = 'list.html';
+		}
+	</script>
+{%  endblock bottomscripts %}
 
