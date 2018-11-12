@@ -5,13 +5,26 @@ from db.base_model import BaseModel
 
 class OrderInfo(BaseModel):
 	'''订单信息模型类'''
+	PAY_TYPE_CHOICES = {
+		'1':'货到付款',
+		'2':'微信支付',
+		'3':'支付宝',
+		'4':'银联支付',		
+	}
 	pay_type_choices = (
 		(1,'货到付款'),
 		(2,'微信支付'),
 		(3,'支付宝'),
 		(4,'银联支付'),
 )
-	
+	ORDER_STATUS_CHOICES = {
+		1:'待支付',
+		2:'待发货',
+		3:'待收货',
+		4:'待评价',
+		5:'已完成'
+	}
+
 	order_status_choices = (
 		(1,'待支付'),
 		(2,'待发货'),
@@ -29,7 +42,7 @@ class OrderInfo(BaseModel):
 	total_price = models.DecimalField(max_digits=10,decimal_places=2,verbose_name='销售总额')
 	transport_price = models.DecimalField(max_digits=10,decimal_places=2,verbose_name='订单运费')
 	order_status = models.SmallIntegerField(default=1,choices=order_status_choices,verbose_name='订单状态')
-	trade_no = models.CharField(max_length=128,verbose_name='支付编号')
+	trade_no = models.CharField(max_length=128,default='',verbose_name='支付编号')
 	
 	class Meta:
 		db_table = 'df_order_info'

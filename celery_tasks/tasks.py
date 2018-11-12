@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 #django.setup()
 
 # 导入商品模型类中的模型
-from goods.models import Goods,GoodsType,GoodsSKU,IndexGoodsBanner,IndexTypeGoodsBanner,IndexPromotionBanner
+from apps.goods.models import Goods,GoodsType,GoodsSKU,IndexGoodsBanner,IndexTypeGoodsBanner,IndexPromotionBanner
 from django.template import loader
 
 

@@ -11,7 +11,8 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django_redis import get_redis_connection
 from goods.models import GoodsSKU
-
+from order.models import OrderInfo,OrderGoods
+from django.core.paginator import Paginator
 # Create your views here.
 
 
@@ -177,12 +178,44 @@ class CenterView(LoginRequiredMixin,View):
 		return render(request,'user/user_center_info.html',context)
 
 
-# /user/order
+# /user/order/page
 class OrderView(LoginRequiredMixin,View):
 	'''用户订单视图类'''
 	
-	def get(self,request):
-		return render(request,'user/user_center_order.html',{'page':'order'})
+	def get(self,request,page_index):
+		user = request.user
+		# 获取所有的订单
+		orders = OrderInfo.objects.filter(user=user).order_by('-create_time')
+		# 获取所有的订单商品
+		for order in orders:
+			# 获取每个订单对应的订单商品
+			order_skus = OrderGoods.objects.filter(order=order)
+			# 得到每个商品的小计
+			for order_sku in order_skus:
+				amount = order_sku.count * order_sku.price
+				# 动态的给每个商品添加小计
+				order_sku.amount = amount 
+			# 动态的给订单添加订单商品
+			order.order_skus = order_skus
+			# 动态的给订单添加订单状态
+			order.status_name = OrderInfo.ORDER_STATUS_CHOICES[order.order_status]
+		# 分页
+		paginator = Paginator(orders,2)
+		# 对页码进行容错处理
+		pages = paginator.get_page(page_index)
+		# 自定义分页显示
+		# 只显示五页，①当<5时,显示所有页面，②当大于5时，以其为中心，③末尾事显示后五页
+		if paginator.num_pages < 5:
+			pages.index = range(1,paginator.num_pages+1)
+		elif paginator.num_pages >= pages.number + 2 and pages.number < 3:
+			pages.index = range(1,6) 
+		elif paginator.num_pages >= pages.number + 2 and pages.number - 2 >= 1:
+			pages.index = range(pages.number-2,pages.number+3)
+		else:
+			page.index = range(paginator.num_pages-4,paginator.num_pages+1)
+		# 组织上下文
+		context = {'pages':pages,'page':'order'}
+		return render(request,'user/user_center_order.html',context)
 
 	def post(self,request):
 		'''处理用户订单请求'''
@@ -213,7 +246,7 @@ class AddressView(LoginRequiredMixin,View):
 		# 业务处理，添加地址进数据库
 		# 查看用户地址是否含有默认地址
 		user = request.user
-		address = Address.bjects.get_default_address(user)
+		address = Address.objects.get_default_address(user)
 		if address:
 			is_default = False
 		else:

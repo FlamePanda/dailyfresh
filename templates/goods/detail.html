@@ -11,7 +11,7 @@
 			</div>
 		</form>
 		<div class="guest_cart fr">
-			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<a href="{% url 'cart:center' %}" class="cart_name fl">我的购物车</a>
 			<div class="goods_count fl" id="show_count">{{ cart_count }}</div>
 		</div>
 	</div>
@@ -24,7 +24,7 @@
 				<span></span>			
 				<ul class="subnav">
 					{% for type in types %}
-					<li><a href="{% url 'goods:index' %}" class="{{ type.logo}}">{{ type.name}}</a></li>
+					<li><a href="{% url 'goods:list' type.id 1  %}" class="{{ type.logo}}">{{ type.name}}</a></li>
 					{% endfor %}
 				</ul>
 			</div>
@@ -98,6 +98,7 @@
 			<ul class="detail_tab clearfix">
 				<li class="active">商品介绍</li>
 				<li>评论</li>
+				{% csrf_token %}
 			</ul>
 
 			<div class="tab_content">
@@ -119,11 +120,64 @@
 	</div>
 {% endblock body %}
 {% block bottom %}
-	<div class="add_jump"></div>
+	<div class="add_jump" style="{animation-iteration-count:infinite;}"></div>
 {% endblock bottom %}
 {% block bottomscripts %}
-	<script type="text/javascript" src="{% static 'js/jquery-1.12.2.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
 	<script type="text/javascript">
+		// 调用函数
+		update_amount();
+		// 根据商品的数量和价格，生成总价
+		function update_amount() {
+			// 获取商品的数量
+			var count = $('.num_show').val();
+			// 获取商品的价格
+			var price = $('.show_pirze').children('em').text();
+			// 生成商品的总价
+			count = parseInt(count);
+			price = parseFloat(price);
+			amount = count*price;
+			// 显示商品的总价
+			$('.total').children('em').text(amount.toFixed(2)+'元');
+				}
+		// cart_count_add 增加商品数量
+		$('.add').click(function(){
+				// 获取当前的商品数量
+				var count = $('.num_show').val();
+				// 对当前的商品数量进行加一
+				count = parseInt(count);
+				count++ ;
+				// 重设置商品数量的值
+				$('.num_show').val(count);
+		update_amount();
+		});
+		// cart_count_minus 减少商品数量
+		$('.minus').click(function(){
+				// 获取当前的商品数量
+				var count = $('.num_show').val();
+				// 对当前的商品数量进行减一
+				count = parseInt(count);
+				count-- ;
+				if(count<1){
+					return ;
+					}
+				// 重设置商品数量的值
+				$('.num_show').val(count);
+		update_amount();
+		});
+		// 若用户手动输入，对输入的数据进行校验
+		$('.num_show').blur(function(){
+			// 获取用户输入的数据
+			var count = $(this).val();
+			// 对数据进行校验
+			if(isNaN(count) || count.trim().length==0 || parseInt(count) < 1){
+				count = 1;
+		}
+			count = parseInt(count);	
+			// 重设数据
+			$(this).val(count);
+		update_amount();
+		});
 		var $add_x = $('#add_cart').offset().top;
 		var $add_y = $('#add_cart').offset().left;
 
@@ -132,15 +186,24 @@
 
 		$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
 		$('#add_cart').click(function(){
-			$(".add_jump").stop().animate({
+				$.post("{% url 'cart:add' %}",{
+				sku_id:{{sku.id}},
+				count:$('.num_show').val(),
+				csrfmiddlewaretoken:$("input[name='csrfmiddlewaretoken']").val()			
+				},function(data){
+					if(data.res == 4 ){
+			$(".add_jump").animate({
 				'left': $to_y+7,
 				'top': $to_x+7},
 				"fast", function() {
 					$(".add_jump").fadeOut('fast',function(){
-						$('#show_count').html(2);
+						$('#show_count').html(data.count);
 					});
-
 			});
+					}else{
+							alert(data.errmsg)
+						}
+				});
 		})
 	</script>
 {%  endblock bottomscripts%}

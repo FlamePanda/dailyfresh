@@ -9,6 +9,6 @@ urlpatterns = [
 
 
 		path('address',AddressView.as_view(),name='address'), # 用户地址
-		path('order',OrderView.as_view(),name='order'), # 用户订单
+		path('order/<int:page_index>',OrderView.as_view(),name='order'), # 用户订单
 		path('',CenterView.as_view(),name='center'), # 用户中心
 ]

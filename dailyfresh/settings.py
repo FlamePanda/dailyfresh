@@ -23,7 +23,7 @@ sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 SECRET_KEY = '#k)a#00j^rwft6(6%3uo_l+4z0o987enveb&o4!&8+=tvn^fx%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -133,6 +133,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static'),]
+STATIC_ROOT = '/home/python/django-test/dailyfresh_static'
 
 # 配置富文本编辑器
 TINYMCE_DEFAULT_CONFIG = {
@@ -186,4 +187,8 @@ HAYSTACK_CONNECTIONS = {
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
 # 设置搜索结果显示的个数
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = 4
+
+# 初始化话支付宝的配置信息
+SERVER_URL = 'https://openapi.alipaydev.com/gateway.do'
+APP_ID = '2016091900550211'
 
