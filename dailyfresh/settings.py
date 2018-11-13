@@ -147,8 +147,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
 # 发送邮件的邮箱
-EMAIL_HOST_USER = 'flamepanda@163.com'
-EMAIL_HOST_PASSWORD = 'flamepanda520'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 # 收件人看到的邮箱账号
 EMAIL_FROM = '天天生鲜<flamepanda@163.com>'
 
@@ -190,5 +190,5 @@ HAYSTACK_SEARCH_RESULTS_PER_PAGE = 4
 
 # 初始化话支付宝的配置信息
 SERVER_URL = 'https://openapi.alipaydev.com/gateway.do'
-APP_ID = '2016091900550211'
+APP_ID = ''
 
